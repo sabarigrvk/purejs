@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "baseUrl": ".",
+    "allowSyntheticDefaultImports": false,
+    "paths": {
+      "Components/*": ["./src/components/*"]
+    }
+  },
+  "exclude": ["dist", "node_modules", "**/node_modules/*", "dist", ".vscode", "coverage", ".npm", ".yarn"],
+  "include": ["src"]
+}

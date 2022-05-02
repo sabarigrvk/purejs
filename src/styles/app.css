@@ -1,0 +1,16 @@
+html {
+  --color-primary: #a4fcda;
+  font-family: sans-serif;
+}
+
+/* hello world */
+nav :any-link > span {
+  display: block;
+  color: red;
+  opacity: 0;
+  background-color: yellow;
+}
+
+p {
+  display: none;
+}
