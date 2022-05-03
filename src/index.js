@@ -8,7 +8,6 @@ const context = require.context('.', true, /^(\.)*\/(?!styles|scripts).+\/([^/]*
 context.keys().forEach(async path => {
   const name = path.replace(/^.+\/([^/]+)\.js/, "$1");
   // const comp = await context(path);
-  console.log(path);
   const comp = await import(/* webpackChunkName:"[request]"*/ `${path}`);
   customElements.define(`sab-${name.toLowerCase()}`, comp.default);
 })

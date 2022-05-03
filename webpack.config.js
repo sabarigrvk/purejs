@@ -55,7 +55,6 @@ module.exports = (_env, { mode = 'production' }) => {
             },
             {
               loader: 'postcss-loader',
-              options: {}
             }
           ]
         },
