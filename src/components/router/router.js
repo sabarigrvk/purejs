@@ -1,33 +1,93 @@
 import { setupShadow } from '../../scripts/helpers';
 import html from './router.html';
 
+const routeComponents = new Set();
+
 export default class Router extends HTMLElement {
+  #routeElements = [];
   #popStateChangedListener;
   #clickedLinkListener;
+  #historyChangeStates;
+  #previousLocation;
 
   constructor() {
     super();
+    routeComponents.add(this);
     setupShadow(this, html);
+    const children = this.children;
+    Array.from(children).forEach(element => {
+      this.#routeElements.push(element);
+      this.shadowRoot.appendChild(element);
+    });
+  }
+
+  connectedCallback() {
+    this.#popStateChangedListener = this.popStateChanged.bind(this);
+    window.addEventListener('popstate', this.#popStateChangedListener);
+
+    this.bindLinks();
+
+    this.#historyChangeStates = new Map([
+      [window.history.pushState, 'pushState'],
+      [window.history.replaceState, 'replaceState']
+    ]);
+
+    for (const [method, name] of this.#historyChangeStates) {
+      window.history[name] = (state, title, url) => {
+        const triggerRouteChange = !state || !state.triggerRouteChange;
+
+        if (!triggerRouteChange) {
+          delete state.triggerRouteChange;
+        }
+
+        method.call(history, state, title, url);
+
+        if (this.#previousLocation) {
+          this.hideRoute(this.#previousLocation.pathname);
+        }
+
+        this.showRoute(url);
+      }
+    }
+    this.showRoute(this.getFullPathname(this.location));
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('popstate', this.#popStateChangedListener);
+    this.unbindLinks();
   }
 
   get location() {
     return window.location;
   }
 
-  connectedCallback() {
-    this.#popStateChangedListener = this.popStateChanged.bind(this);
-    window.addEventListener('popstate', this.popStateChangedListener);
-
-    this.bindLinks();
+  matchPathWithRegex(pathname = '', regex) {
+    if (!pathname.startsWith('/')) {
+      pathname = `${pathname.replace(/^\//, '')}`;
+    }
+    return pathname.match(regex);
   }
 
-  disconnectedCallback() {
-    window.removeEventListener('popstate', this.popStateChangedListener);
-    this.unbindLinks();
+  getRouteElementByPath(pathname) {
+    let element;
+    if (!pathname) return;
+
+    for (const child of this.#routeElements) {
+      let path = pathname;
+      const search = child.getAttribute('search-params');
+      if (search) {
+        path = `${pathname}?${search}`;
+      }
+      console.log(customElements.get("sab-home"));
+      if (this.matchPathWithRegex(path, child.getAttribute('path'))) {
+        element = child;
+        break;
+      }
+    }
   }
 
   bindLinks() {
-    this.clickedLinkListener = (event) => {
+    this.#clickedLinkListener = (event) => {
       if (event.defaultPrevented) return;
 
       const link = event.composedPath().filter(element => element.tagName === 'A')[0];
@@ -39,11 +99,11 @@ export default class Router extends HTMLElement {
       this.clickedLink(link, event);
     }
 
-    document.body.addEventListener('click', this.clickedLinkListener);
+    document.body.addEventListener('click', this.#clickedLinkListener);
   }
 
   unbindLinks() {
-    document.body.removeEventListener('click', this.clickedLinkListener);
+    document.body.removeEventListener('click', this.#clickedLinkListener);
   }
 
   clickedLink(link, event) {
@@ -74,7 +134,7 @@ export default class Router extends HTMLElement {
     event.preventDefault();
   }
 
-  #getFullPathname(location) {
+  getFullPathname(location) {
     if (!location) {
       return '';
     }
@@ -86,4 +146,17 @@ export default class Router extends HTMLElement {
     const path = this.getFullPathname(this.location);
     window.history.replaceState({}, document.title, path);
   }
+
+  async showRoute(location) {
+    if (!location) return;
+    const [pathname, hashString] = location.split('#');
+    const routeElement = this.getRouteElementByPath(pathname);
+    console.log(routeElement);
+    this.#previousLocation = { ...this.location };
+  }
+
+  async hideRoute(location = '') {
+
+  }
+
 }

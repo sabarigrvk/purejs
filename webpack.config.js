@@ -14,7 +14,11 @@ module.exports = (_env, { mode = 'production' }) => {
     },
     output: {
       path: resolve(__dirname, 'dist'),
-      chunkFilename: isProd ? '[name].[chunkhash:8].js': '[name].js',
+      // chunkFilename: isProd ? '[name].[chunkhash:8].js': '[name].js',
+      chunkFilename: (pathData) => {
+        const name = pathData.chunk.name.split("-").filter(str => !['index', 'js'].includes(str)).join('-');
+        return `${name}.js`;
+      },
       filename: isProd ? '[name].[contenthash].js' : '[name].js',
       assetModuleFilename: 'assets/[name].[hash:8].[ext]'
     },
@@ -115,7 +119,13 @@ module.exports = (_env, { mode = 'production' }) => {
       historyApiFallback: true
     },
     resolve: {
-      alias: {}
+      extensions: ['.js', '.mjs', '.json', '.css'],
+      modules: ['./src', 'node_modules'],
+      alias: {
+        components: resolve('./src', 'components'),
+        pages: resolve('./src', 'pages'),
+        scripts: resolve('./src', 'scripts')
+      },
     },
     stats: {
       errorDetails: true

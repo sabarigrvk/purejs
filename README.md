@@ -23,3 +23,6 @@ purejs/
     index.js
     index.html
 ```
+
+
+https://github.com/salesforce-ux/design-system/blob/main/ui/components/modals/base/example.jsx

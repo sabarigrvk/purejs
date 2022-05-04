@@ -1,14 +1,23 @@
-import './styles/app.css';
-// import Tooltip from './components/tooltip';
+const componentPrefix = 'sab';
+const Elements = {};
 
-const context = require.context('.', true, /^(\.)*\/(?!styles|scripts).+\/([^/]*)\.js/, 'lazy');
+const context = import.meta.webpackContext('.', { recursive: true, regExp: /^(\.)*\/(?!scripts|styles).+\index.js/, mode: 'lazy'});
+context.keys().forEach((path) => {
+  const name = path
+    .split('/')
+    .map(str => str.replace(/\.js/g, '').replace(/\./g, ''))
+    .filter(str => str !== '' && str !== 'index');
+    Elements[`${componentPrefix}-${name.pop()}`] = () => import(/* webpackChunkName: "[request]" */`${path}`);
 
-// https://webpack.js.org/api/module-variables/#importmetawebpackcontext
-// const context = import.meta.webpackContext('./components', {recursive: true, regExp: /^.+\/([^/]+)\/index\.js/, mode: 'lazy', chunkName: '[request]'})
-context.keys().forEach(async path => {
-  const name = path.replace(/^.+\/([^/]+)\.js/, "$1");
-  // const comp = await context(path);
-  const comp = await import(/* webpackChunkName:"[request]"*/ `${path}`);
-  customElements.define(`sab-${name.toLowerCase()}`, comp.default);
-})
+  // cache[name.join('-')] = () => context(/* webpackChunkName: "[request]" */ path)
+});
 
+const undefinedElements = document.querySelectorAll(':not(:defined)');
+const loadElements = () => {
+  [...undefinedElements].forEach(async ele => {
+    const { default: component } = await Elements[ele.localName]();
+    customElements.define(ele.localName, component);
+  });
+}
+
+loadElements();

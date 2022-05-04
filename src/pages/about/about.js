@@ -1,3 +1,5 @@
+import { setupShadow } from "../../scripts/helpers";
+
 export default class About extends HTMLElement {
 
   static config = {
@@ -5,9 +7,10 @@ export default class About extends HTMLElement {
     description: 'Welcome to About page',
     pathname: '/about'
   }
-  
+
   constructor() {
     super();
-
+    console.log('about page');
+    setupShadow(this, `<b>Hello about</b>`);
   }
 }
