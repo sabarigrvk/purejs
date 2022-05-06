@@ -2,6 +2,7 @@ const componentPrefix = 'sab';
 const Elements = {};
 
 const context = import.meta.webpackContext('.', { recursive: true, regExp: /^(\.)*\/(?!scripts|styles).+\index.js/, mode: 'lazy'});
+console.dir(context.keys());
 context.keys().forEach((path) => {
   const name = path
     .split('/')

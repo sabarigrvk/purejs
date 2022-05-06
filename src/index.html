@@ -7,12 +7,28 @@
 </head>
 
 <body>
-  <sab-tooltip class="important" text="Web Components is a set of standards.">
-    <span class="highlight">Web Components</span>
-  </sab-tooltip>
+  <button>Show Details & Confirm</button>
   <sab-modal></sab-modal>
-  <!-- <i class="icon"></i> -->
 
+  <script>
+    const confirmButton = document.querySelector('button');
+    const modal = document.querySelector('sab-modal');
+
+    modal.addEventListener('confirm', () => {
+      console.log('Confirmed...');
+    });
+
+    modal.addEventListener('cancel', () => {
+      console.log('Cancelled...');
+    });
+
+    confirmButton.addEventListener('click', () => {
+      //  modal.setAttribute('opened', '');
+      if (!modal.isOpen) {
+        modal.open();
+        console.log('Opening...');
+      }
+    });
 </body>
 
 </html>

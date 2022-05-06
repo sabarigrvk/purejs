@@ -16,7 +16,7 @@ module.exports = (_env, { mode = 'production' }) => {
       path: resolve(__dirname, 'dist'),
       // chunkFilename: isProd ? '[name].[chunkhash:8].js': '[name].js',
       chunkFilename: (pathData) => {
-        const name = pathData.chunk.name.split("-").filter(str => !['index', 'js'].includes(str)).join('-');
+        const name = pathData.chunk.name.split('-').filter(str => !['index', 'js'].includes(str)).join('-');
         return `${name}.js`;
       },
       filename: isProd ? '[name].[contenthash].js' : '[name].js',
@@ -30,6 +30,21 @@ module.exports = (_env, { mode = 'production' }) => {
         },
       },
       rules: [
+        {
+          test: /\.md$/,
+          use: [
+            {
+              loader: 'html-loader',
+            },
+            {
+              loader: 'markdown-loader',
+              options: {
+                // Pass options to marked
+                // See https://marked.js.org/using_advanced#options
+              },
+            },
+          ],
+        },
         {
           test: /\.html$/i,
           use: ['html-loader'],
